@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FoodieFast — FAST NUCES Canteen Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #141110;
+  --cream:     #FFF9F2;
+  --warm:      #F7F0E4;
+  --card:      #FFFCF8;
+  --border:    rgba(20,17,16,0.10);
+  --border-mid:rgba(20,17,16,0.18);
+  --turmeric:  #E8960C;
+  --turmeric-l:#FDF3DA;
+  --chili:     #C83B1E;
+  --chili-l:   #FBE8E4;
+  --mint:      #1B9E7A;
+  --mint-l:    #E1F5EE;
+  --ink55:     rgba(20,17,16,0.55);
+  --ink35:     rgba(20,17,16,0.35);
+  --ink15:     rgba(20,17,16,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background texture dots */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(20,17,16,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app-root { position: relative; z-index: 1; }
+
+/* ── Typography ── */
+.font-display { font-family: 'Playfair Display', Georgia, serif; }
+.font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+/* ── Navbar ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 20px;
+}
+.navbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,252,248,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 12px rgba(20,17,16,0.06);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+.brand svg { flex-shrink: 0; }
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink55);
+  font-weight: 500;
+}
+.breadcrumb .bc-sep { color: var(--ink35); }
+.breadcrumb button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink55);
+  transition: color 0.15s;
+}
+.breadcrumb button:hover { color: var(--ink); }
+.nav-home-btn {
+  background: none;
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.nav-home-btn:hover { background: var(--warm); border-color: var(--border-mid); }
+
+/* ── Main container ── */
+.main { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 20px;
+}
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+.footer .brand-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink55);
+}
+.footer p { font-size: 12px; color: var(--ink35); margin-top: 6px; }
+.footer .built-by { font-size: 13px; color: var(--ink55); margin-top: 12px; }
+.footer .linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--turmeric);
+  text-decoration: none;
+  margin-top: 4px;
+  transition: color 0.15s;
+}
+.footer .linkedin:hover { color: var(--chili); }
+
+/* ── SCREEN: HOME ── */
+.home-hero {
+  padding: 60px 0 40px;
+  text-align: center;
+}
+.campus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink55);
+  margin-bottom: 28px;
+}
+.campus-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--chili);
+}
+
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 8vw, 80px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -2px;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--turmeric);
+}
+
+/* Marquee ticker */
+.marquee-wrap {
+  overflow: hidden;
+  width: 100%;
+  margin: 32px 0;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  white-space: nowrap;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink35);
+  letter-spacing: 0.02em;
+}
+.marquee-item .dot-sep {
+  width: 4px; height: 4px;
+  border-radius: 999px;
+  background: var(--turmeric);
+  opacity: 0.6;
+}
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.hero-sub {
+  max-width: 500px;
+  margin: 0 auto 48px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink55);
+}
+
+/* Divider */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-label .line { flex: 1; height: 1px; background: var(--border); }
+.section-label span {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink55);
+}
+
+/* Category grid */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 60px;
+}
+@media (min-width: 600px) {
+  .cat-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s ease;
+  transform: rotate(var(--tilt, 0deg));
+  box-shadow: 0 4px 16px rgba(20,17,16,0.07);
+  animation: card-in 0.5s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--delay, 0ms);
+}
+.cat-card:hover {
+  transform: rotate(0deg) translateY(-5px);
+  box-shadow: 0 12px 32px rgba(20,17,16,0.13);
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(20px) rotate(var(--tilt,0deg)) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)   rotate(var(--tilt,0deg)) scale(1); }
+}
+
+.cat-top {
+  padding: 18px 16px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.cat-emoji { font-size: 32px; line-height: 1; }
+.cat-no {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink35);
+  margin-top: 2px;
+}
+
+.perf-line {
+  position: relative;
+  border-top: 1.5px dashed rgba(20,17,16,0.15);
+  margin: 0 -1px;
+}
+.perf-line::before, .perf-line::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  width: 15px; height: 15px;
+  border-radius: 999px;
+  background: var(--cream);
+}
+.perf-line::before { left: -8px; }
+.perf-line::after  { right: -8px; }
+
+.cat-bottom {
+  padding: 14px 16px 18px;
+}
+.cat-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.cat-tagline {
+  font-size: 11px;
+  color: var(--ink55);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.cat-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--turmeric);
+  transition: gap 0.15s, color 0.15s;
+}
+.cat-card:hover .cat-cta { gap: 7px; color: var(--chili); }
+
+/* Stats strip */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--chili);
+}
+.stat-lbl { font-size: 11px; color: var(--ink55); margin-top: 4px; }
+
+/* ── SCREEN: CATEGORY ── */
+.screen-enter {
+  animation: screen-in 0.4s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 44px 0 32px;
+}
+.cat-header-emoji {
+  font-size: 48px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.cat-header-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.cat-header-text p {
+  font-size: 13px;
+  color: var(--ink55);
+  margin-top: 5px;
+}
+
+.cafe-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 600px) {
+  .cafe-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.cafe-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 10px rgba(20,17,16,0.06);
+  animation: card-in 0.45s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--delay, 0ms);
+}
+.cafe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(20,17,16,0.12);
+}
+.cafe-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cafe-info { display: flex; align-items: center; gap: 12px; }
+.cafe-emoji-wrap {
+  width: 48px; height: 48px;
+  background: var(--warm);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.cafe-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.cafe-loc {
+  font-size: 12px;
+  color: var(--ink55);
+  margin-top: 3px;
+}
+.avg-badge {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.avg-badge.rated   { background: var(--turmeric-l); color: #8B5A00; }
+.avg-badge.unrated { background: var(--warm); color: var(--ink35); }
+.avg-badge.skel    { width: 68px; height: 26px; }
+
+.skel {
+  background: linear-gradient(90deg, #EDE7DC 25%, #F5EFE4 50%, #EDE7DC 75%);
+  background-size: 200% 100%;
+  animation: skel 1.4s ease infinite;
+  border-radius: 999px;
+}
+@keyframes skel { 0%{background-position:100%} 100%{background-position:-100%} }
+
+.cafe-cta {
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.15s;
+}
+.cafe-card:hover .cafe-cta { gap: 7px; }
+
+/* ── SCREEN: CAFE DETAIL ── */
+.cafe-header-block {
+  background: var(--ink);
+  border-radius: 24px 24px 0 0;
+  padding: 32px 32px 44px;
+  margin-top: 40px;
+  position: relative;
+  overflow: hidden;
+}
+/* Subtle grain */
+.cafe-header-block::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+.order-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 8px;
+}
+.cafe-detail-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 900;
+  color: #FFFCF8;
+  line-height: 0.95;
+  letter-spacing: -1px;
+}
+.cafe-detail-loc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 10px;
+}
+.cafe-avg-pill {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 10px 16px;
+  text-align: center;
+}
+.cafe-avg-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--turmeric);
+}
+.cafe-avg-votes {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.cafe-avg-pill.skel-pill {
+  width: 80px; height: 68px;
+  background: rgba(255,255,255,0.07);
+  animation: skel 1.4s ease infinite;
+}
+
+/* Torn zigzag bottom of dark header */
+.torn {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin-top: -1px;
+  flex-shrink: 0;
+}
+
+.menu-body {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 24px 24px;
+  padding: 32px;
+  padding-bottom: 40px;
+}
+
+/* Section heading */
+.menu-section-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--chili);
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+/* Menu row */
+.menu-row {
+  padding: 12px 0 4px;
+}
+.menu-row-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.menu-item-name {
+  font-size: 14.5px;
+  color: var(--ink);
+  flex: 1;
+}
+.leader {
+  flex: 1 1 auto;
+  border-bottom: 1.5px dotted var(--ink15);
+  margin: 0 6px;
+  transform: translateY(-3px);
+}
+.menu-item-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink55);
+  flex-shrink: 0;
+}
+.rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 10px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.stars-wrap { display: flex; align-items: center; gap: 2px; }
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--ink15);
+  transition: transform 0.1s, color 0.1s;
+  padding: 2px;
+}
+.star-btn:hover { transform: scale(1.25); }
+.star-btn.lit { color: var(--turmeric); }
+.avg-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink35);
+}
+.menu-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* Two-column bottom panel */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (min-width: 620px) {
+  .bottom-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.panel {
+  background: var(--warm);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+}
+.panel-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+/* Payment entries */
+.pay-entry {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.pay-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.pay-method { font-size: 13px; font-weight: 600; color: var(--ink); }
+.pay-title   { font-size: 11px; color: var(--ink55); margin-top: 1px; }
+.pay-number  { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink55); margin-top: 2px; }
+.pay-empty   { font-size: 13px; color: var(--ink55); }
+
+/* Comments panel */
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.comment-input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.comment-input:focus { border-color: var(--turmeric); }
+.comment-submit {
+  background: var(--ink);
+  color: #FFF9F2;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.comment-submit:hover { background: var(--chili); }
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.comment-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  animation: screen-in 0.3s ease both;
+}
+.comment-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink35);
+  margin-bottom: 3px;
+}
+.comment-empty { font-size: 12px; color: var(--ink35); font-style: italic; }
+
+/* Stamp pop anim */
+@keyframes stamp-pop {
+  0%   { transform: scale(1.5); opacity: 0; }
+  60%  { transform: scale(0.92); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.stamp { animation: stamp-pop 0.3s cubic-bezier(.2,.8,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  .cat-card:hover, .cafe-card:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<div id="app-root">
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <button class="brand" id="brand-btn">
+        <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="21" stroke="#141110" stroke-width="2.5"/>
+          <path d="M15 14v10a3 3 0 003 3v9" stroke="#141110" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M15 14v6M19 14v6M15 20h4" stroke="#141110" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M32 14c-3 2-3 6-1 8l1 1v13" stroke="#C83B1E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        FoodieFast
+      </button>
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <button class="nav-home-btn" id="home-btn">Home</button>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="main" id="app"></main>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="brand-name">FoodieFast</div>
+      <p>Rate the food, read the room, spend your Rs. 100 where it counts.</p>
+      <p class="built-by">Built by <strong>Muhammad Rohan Ur Rehman</strong> · 25K · FAST NUCES</p>
+      <a class="linkedin" href="https://www.linkedin.com/in/muhammadrohan367/" target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 11.02-4.12 2.06 2.06 0 01-.02 4.12zM7.11 20.45H3.56V9h3.55v11.45z"/></svg>
+        linkedin.com/in/muhammadrohan367
+      </a>
+    </div>
+  </footer>
+
+</div><!-- #app-root -->
+
+<script>
+/* ── DATA ── */
+const CATEGORIES = [
+  { id:'lunch',     label:'Lunch',     tagline:'Biryani, burgers, rolls & real meals', icon:'🍛', tilt:-3 },
+  { id:'breakfast', label:'Breakfast', tagline:'Parathas, halwa-puri & morning fuel',  icon:'🍳', tilt:2  },
+  { id:'coffee',    label:'Coffee',    tagline:'Espresso to iced matcha',              icon:'☕', tilt:-2 },
+  { id:'drinks',    label:'Drinks',    tagline:'Juices, shakes & cold relief',          icon:'🥤', tilt:3  },
+];
+
+function sec(items, title=null){ return { title, items }; }
+
+const CAFES = [
+  {
+    id:'burger-corner', name:'Burger Corner', emoji:'🍔', location:'Behind CS Building',
+    categories:['lunch'],
+    payment:[{method:'EasyPaisa', title:'Muhammad Mohsin Khan', number:'0333-3040727'}],
+    menu:[ sec([
+      ['Shami Burger',100],['Egg Shami Burger',150],
+      ['Chicken Patty Burger with Fries (Brand Pack)',200],
+      ['Chicken Chapli Burger with Fries (Brand Pack)',220],
+      ['Zinger Burger with Fries',300],['French Fries',100],
+      ['Chicken Biryani',250],['Chicken Pulao',180],
+    ])]
+  },
+  {
+    id:'dadar-bbq', name:'Dadar B.B.Q Dera Point', emoji:'🌯', location:'Behind CS Building',
+    categories:['lunch'],
+    payment:[
+      {method:'EasyPaisa', number:'0332-2274036'},
+      {method:'JazzCash', number:'0315-2265432'},
+      {method:'Askari Bank', number:'03470900000765'},
+    ],
+    menu:[ sec([
+      ['Chicken Tikka Leg',320],['Tikka Seekh Botti (Per Plate)',450],
+      ['Malai Botti Roll',140],['Chicken Mayo Roll',180],
+      ['Chicken Chatni Roll',170],['Chicken Seekh Kebab Roll',180],
+      ['Chicken Shawarma',140],['Zinger Roll',240],['Zinger Shawarma',250],
+      ['Chicken Mayo Sandwich',140],['Special Tea',70],
+    ])]
+  },
+  {
+    id:'shawarma-bite', name:'Shawarma Bite', emoji:'🌯', location:'Beside Back Gate',
+    categories:['lunch'],
+    payment:[{method:'EasyPaisa / SadaPay / JazzCash', title:'Bashir Ahmed', number:'0321-2545983'}],
+    menu:[ sec([
+      ['Chicken Shawarma',170],['Macroni Shawarma',180],['Mayo Garlic Shawarma',200],
+      ['Cheese Shawarma',220],['Vegetable Shawarma',150],['Zinger Shawarma',250],
+      ['Zinger Cheese Shawarma',300],
+    ])]
+  },
+  {
+    id:'tasty-hut', name:'Tasty Hut', emoji:'🍟', location:'Beside EE Building',
+    categories:['lunch'],
+    payment:[{method:'JazzCash', title:'Ubaid Rasheed', number:'0342-2133768'}],
+    menu:[
+      sec([['Masala Fries','50 / 100'],['Loaded Fries',200],['Pizza Fries',320],['Pepro Fries',350],['Mayo Fries',150],['Krusty Fries',300]], 'Fries'),
+      sec([['Shami Burger',100],['Krusty Burger + Fries',250],['Chicken Burger + Fries',180],['Anda Shami Burger',130],['Chapli Burger + Fries',180]], 'Burgers'),
+      sec([['Chicken Chatni Roll',170],['Mayo Roll',180],['Krusty Roll',200],['Chicken Kathi Roll',200],['B.B.Q Roll',140],['Chicken Chatni Roll + Cheese',200],['Chicken Mayo Roll + Cheese',220],['B.B.Q Roll + Cheese',205],['Chicken Kathi Roll + Cheese',230],['Krusty Roll + Cheese',270]], 'Rolls'),
+      sec([['Aloo Samosa',50],['Spring Roll',50],['Arabian Puff',80],['Cheese Spring Roll',100]], 'Snacks'),
+      sec([['B.B.Q ×2 + 345ml Drink',390],['Mayo Roll ×2 + 345ml Drink',400],['Chicken Burger ×2 + 345ml Drink',400],['2 Zinger Burgers',500],['Chicken Biryani',250],['Chicken Pulao',250]], 'Deals'),
+    ]
+  },
+  {
+    id:'fast-juice-bar', name:'Fast Juice Bar', emoji:'🥤', location:'Beside Main Gate',
+    categories:['drinks'],
+    payment:[{method:'EasyPaisa / JazzCash / SadaPay / NayaPay / FirstPay', number:'0325-1386386'}],
+    menu:[ sec([
+      ['Fresh Lemonade',50],['Fresh Lemonade + 7Up',80],['Cold Coffee',180],['Hot Coffee (M)',150],
+      ['Apple Juice',200],['Banana Milkshake',130],['Dates Milkshake',170],['Chiku Milkshake',150],
+      ['Day Dream Milkshake',180],['Oreo Milkshake',180],['Doodh Soda',150],['Peach Drink',80],
+      ['Lychee Drink',80],['Apple Drink',80],['Juice / Rooh Afza (Plain)',80],['Juice / Rooh Afza (Milk)',150],
+      ['Fruit Chaat',150],['Creamy Fruit Chaat',200],
+    ])]
+  },
+  {
+    id:'nashta-spot', name:'Nashta Spot', emoji:'🫓', location:'Beside Back Gate',
+    categories:['breakfast'],
+    payment:[],
+    menu:[
+      sec([['Plain Paratha',60],['Aloo Paratha',120],['Cheese Paratha',180],['Nutella Paratha',180],['Egg Paratha',180]], 'Parathas'),
+      sec([['Egg Omelette',60]], 'Nashta'),
+      sec([['Chicken Biryani / Pulao',250],['Plain Pulao',220]], 'Biryani / Pulao'),
+      sec([['Pakoras (Small Plate)',60],['Pakoras (Large Plate)',100]], 'Pakoras'),
+      sec([['Regular Fries',70],['French Fries',150]], 'Fries'),
+    ]
+  },
+  {
+    id:'grind-coffee', name:'Grind Coffee Co.', emoji:'☕', location:'Main Cafeteria',
+    categories:['coffee'],
+    payment:[],
+    menu:[
+      sec([['Espresso',350],['Americano',380],['Latte',450],['Cappuccino',450]], 'Hot Classic'),
+      sec([['French Vanilla',500],['Caramel',500],['Hazelnut',500],['Spanish',500],['Mocha',500]], 'Hot Lattes'),
+      sec([['Iced Americano',400],['Iced Latte',500],['Iced Spanish Latte',550],['Iced French Vanilla Latte',550],['Iced Caramel Latte',550],['Iced Mocha Latte',550]], 'Iced Coffees'),
+      sec([['French Vanilla Frappe',650],['Caramel Frappe',650],['Hazelnut Frappe',650],['Mocha Frappe',650],['Lotus Frappe',650]], 'Frappes'),
+      sec([['Passion Fruit Iced Tea',400],['Peach Iced Tea',400]], 'Iced Teas'),
+      sec([['Classic Matcha',700],['Blueberry Matcha',750],['Strawberry Matcha',750]], 'Matcha'),
+      sec([['Mint Lemonade',250],['Blueberry Cooler',300],['Strawberry Cooler',300],['Raspberry Cooler',300]], 'Coolers'),
+      sec([['Extra Espresso Shot',150]], 'Add-ons'),
+    ]
+  },
+  {
+    id:'ch-nazeer-ahmed', name:'Cafeteria Ch. Nazeer Ahmed', emoji:'🍛', location:'Main Cafeteria',
+    categories:['breakfast','lunch'],
+    payment:[{method:'EasyPaisa (IBAN)', number:'PK37TMFB0000000083728713'}],
+    menu:[
+      sec([
+        ['Chicken Biryani / Pulao',250],['Plain Biryani / Pulao',125],['Daal Chawal',200],
+        ['Singapuri Rice',350],['Vegetable Rice / Chinnies Rice',250],['Chicken Karahi',200],
+        ['Halwa + 2 Puri + Gravy',120],['Egg Paratha / Bread Slice',150],['Daal Saalan',150],
+        ['Zinger Burger with Fries',300],['Chicken Burger with Fries',200],['Shami Burger',150],
+        ['Double Egg Shami Burger',225],['Chicken Sandwich',200],['Club Sandwich with Fries',350],
+        ['Chicken Samosa',60],['Potato Samosa',40],['Vegetable Roll',60],
+        ['French Fries (Single Plate)',100],['French Fries (Full Plate)',200],
+        ['Uhood Patti Tea',70],['Green Tea',50],['Coffee',150],['Paratha',50],
+      ], 'Self Service Menu'),
+      sec([
+        ['Chicken Roll',200],['Zinger Roll',250],['Chicken Mayo Roll',200],['Potato Paratha',150],
+        ['Chicken Paratha',200],['Chicken Patties',100],['Vegetable Patties',80],
+        ['Dahi Bhalla / Channa Chaat',100],['Pizza Sandwich',250],['Pizza Slice',250],
+        ['Stick Botti',250],['Bottli Sandwich',250],
+      ], 'Market Rate Items'),
+    ]
+  },
+];
+
+const FOODS = ['Chicken Biryani','Zinger Burger','Aloo Paratha','Seekh Botti','Shawarma','Daal Chawal','Malai Botti','Cold Coffee','Matcha Latte','Masala Fries','Doodh Soda','Halwa Puri','Chicken Karahi','Iced Latte','Samosa','Spring Roll'];
+
+function catMeta(id){ return CATEGORIES.find(c=>c.id===id); }
+function cafeById(id){ return CAFES.find(c=>c.id===id); }
+function flatItems(cafe){ return cafe.menu.flatMap(s=>s.items); }
+function ik(idx){ return String(idx); }
+
+/* ── Storage ── */
+async function getJSON(key, shared, fallback){
+  try{ const r=await window.storage.get(key,shared); return r?JSON.parse(r.value):fallback; }
+  catch(e){ return fallback; }
+}
+async function setJSON(key, shared, value){
+  try{ return await window.storage.set(key,JSON.stringify(value),shared); }
+  catch(e){ console.error(e); return null; }
+}
+async function loadRatings(id){ return getJSON('ratings:'+id,true,{sum:{},count:{}}); }
+async function loadComments(id){ return getJSON('comments:'+id,true,[]); }
+async function loadMyVotes(id){ return getJSON('myvotes:'+id,false,{}); }
+
+async function submitRating(cafeId, idx, stars){
+  const key='ratings:'+cafeId;
+  const [data,mv]=await Promise.all([loadRatings(cafeId),loadMyVotes(cafeId)]);
+  const k=ik(idx); const prev=mv[k];
+  if(prev){ data.sum[k]=(data.sum[k]||0)-prev+stars; }
+  else { data.sum[k]=(data.sum[k]||0)+stars; data.count[k]=(data.count[k]||0)+1; }
+  mv[k]=stars;
+  await Promise.all([setJSON(key,true,data),setJSON('myvotes:'+cafeId,false,mv)]);
+  return {data,mv};
+}
+async function submitComment(cafeId, text){
+  const key='comments:'+cafeId;
+  const list=await loadComments(cafeId);
+  list.unshift({text,ts:Date.now()});
+  await setJSON(key,true,list);
+  return list;
+}
+
+/* ── State ── */
+const state={screen:'home',category:null,cafeId:null};
+const app=document.getElementById('app');
+
+document.getElementById('home-btn').onclick=()=>go('home');
+document.getElementById('brand-btn').onclick=()=>go('home');
+
+function go(screen,opts={}){
+  state.screen=screen;
+  if(opts.category!==undefined) state.category=opts.category;
+  if(opts.cafeId!==undefined) state.cafeId=opts.cafeId;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderBreadcrumb(){
+  const el=document.getElementById('breadcrumb');
+  if(state.screen==='home'){el.innerHTML='';return;}
+  let h=`<button data-nav="home">Home</button>`;
+  if(state.category){
+    const cm=catMeta(state.category);
+    h+=`<span class="bc-sep">/</span><button data-nav="category">${cm.label}</button>`;
+  }
+  if(state.screen==='cafe'&&state.cafeId){
+    const cafe=cafeById(state.cafeId);
+    h+=`<span class="bc-sep">/</span><span>${cafe.name}</span>`;
+  }
+  el.innerHTML=h;
+  el.querySelectorAll('[data-nav]').forEach(b=>{
+    b.onclick=()=>{
+      if(b.dataset.nav==='home') go('home');
+      if(b.dataset.nav==='category') go('category',{category:state.category});
+    };
+  });
+}
+
+/* ── HOME ── */
+function renderHome(){
+  const foods=[...FOODS,...FOODS];
+  const marqueeHtml=foods.map(f=>`<span class="marquee-item">${f}<span class="dot-sep"></span></span>`).join('');
+
+  app.innerHTML=`
+  <section class="screen-enter">
+    <div class="home-hero">
+      <div class="campus-badge"><span class="dot"></span>FAST NUCES Campus Canteens</div>
+      <h1 class="hero-headline">Don't waste<br><em>Rs. 100</em><br>on bad food.</h1>
+      <div class="marquee-wrap"><div class="marquee-track">${marqueeHtml}</div></div>
+      <p class="hero-sub">Every cafeteria on campus, every item priced and rated by students actually eating it. Pick your craving — the menu, the stars, and honest reviews follow.</p>
+    </div>
+
+    <div class="section-label">
+      <div class="line"></div>
+      <span>What are you craving?</span>
+      <div class="line"></div>
+    </div>
+
+    <div class="cat-grid" style="margin-top:20px">
+      ${CATEGORIES.map((c,i)=>`
+        <button data-cat="${c.id}" class="cat-card" style="--tilt:${c.tilt}deg;--delay:${i*80}ms">
+          <div class="cat-top">
+            <span class="cat-emoji">${c.icon}</span>
+            <span class="cat-no font-mono">NO.${String(i+1).padStart(2,'0')}</span>
+          </div>
+          <div class="perf-line"></div>
+          <div class="cat-bottom">
+            <div class="cat-label">${c.label}</div>
+            <div class="cat-tagline">${c.tagline}</div>
+            <div class="cat-cta">Browse stalls <span>→</span></div>
+          </div>
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="stats-strip" style="margin-top:0">
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-lbl">Canteens tracked</div></div>
+      <div class="stat-card"><div class="stat-num">150+</div><div class="stat-lbl">Menu items priced</div></div>
+      <div class="stat-card"><div class="stat-num">★</div><div class="stat-lbl">Rated by students</div></div>
+    </div>
+  </section>`;
+
+  app.querySelectorAll('[data-cat]').forEach(btn=>{
+    btn.onclick=()=>go('category',{category:btn.dataset.cat,cafeId:null});
+  });
+}
+
+/* ── CATEGORY ── */
+function renderCategory(){
+  const cm=catMeta(state.category);
+  const cafes=CAFES.filter(c=>c.categories.includes(state.category));
+  app.innerHTML=`
+  <section class="screen-enter">
+    <div class="cat-header">
+      <div class="cat-header-emoji">${cm.icon}</div>
+      <div class="cat-header-text">
+        <h2>${cm.label} stalls</h2>
+        <p>${cafes.length} cafeteria${cafes.length>1?'s':''} serving ${cm.label.toLowerCase()} right now</p>
+      </div>
+    </div>
+    <div class="cafe-grid">
+      ${cafes.map((cafe,i)=>`
+        <button data-cafe="${cafe.id}" class="cafe-card" style="--delay:${i*70}ms">
+          <div class="cafe-card-top">
+            <div class="cafe-info">
+              <div class="cafe-emoji-wrap">${cafe.emoji}</div>
+              <div>
+                <div class="cafe-name">${cafe.name}</div>
+                <div class="cafe-loc">📍 ${cafe.location}</div>
+              </div>
+            </div>
+            <div id="avg-${cafe.id}" class="avg-badge skel">&nbsp;</div>
+          </div>
+          <div class="cafe-cta" style="margin-top:14px">View full menu <span>→</span></div>
+        </button>
+      `).join('')}
+    </div>
+  </section>`;
+
+  app.querySelectorAll('[data-cafe]').forEach(btn=>{
+    btn.onclick=()=>go('cafe',{cafeId:btn.dataset.cafe});
+  });
+
+  cafes.forEach(async cafe=>{
+    const data=await loadRatings(cafe.id);
+    const items=flatItems(cafe);
+    let sum=0,count=0;
+    items.forEach((_,idx)=>{sum+=data.sum[ik(idx)]||0;count+=data.count[ik(idx)]||0;});
+    const avg=count?(sum/count).toFixed(1):null;
+    const el=document.getElementById('avg-'+cafe.id);
+    if(!el)return;
+    el.className='avg-badge '+(avg?'rated':'unrated');
+    el.textContent=avg?`★ ${avg}`:'unrated';
+  });
+}
+
+/* ── CAFE ── */
+function renderCafe(){
+  const cafe=cafeById(state.cafeId);
+  const items=flatItems(cafe);
+
+  app.innerHTML=`
+  <section class="screen-enter">
+    <div class="cafe-header-block">
+      <div class="order-eyebrow">Order Ticket</div>
+      <div class="cafe-detail-name">${cafe.emoji} ${cafe.name}</div>
+      <div class="cafe-detail-loc">📍 ${cafe.location}</div>
+      <div id="cafe-avg-pill" class="cafe-avg-pill skel-pill"></div>
+    </div>
+    <svg class="torn" viewBox="0 0 960 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,0 L960,0 L960,10 Q940,24 920,10 Q900,0 880,10 Q860,24 840,10 Q820,0 800,10 Q780,24 760,10 Q740,0 720,10 Q700,24 680,10 Q660,0 640,10 Q620,24 600,10 Q580,0 560,10 Q540,24 520,10 Q500,0 480,10 Q460,24 440,10 Q420,0 400,10 Q380,24 360,10 Q340,0 320,10 Q300,24 280,10 Q260,0 240,10 Q220,24 200,10 Q180,0 160,10 Q140,24 120,10 Q100,0 80,10 Q60,24 40,10 Q20,0 0,10 Z"
+            fill="#FFFCF8"/>
+    </svg>
+    <div class="menu-body" id="menu-body"></div>
+    <div class="bottom-grid" id="bottom-grid"></div>
+  </section>`;
+
+  buildMenu(cafe, items);
+  buildBottom(cafe);
+
+  loadRatings(cafe.id).then(data=>{
+    let sum=0,count=0;
+    items.forEach((_,idx)=>{sum+=data.sum[ik(idx)]||0;count+=data.count[ik(idx)]||0;});
+    const avg=count?(sum/count).toFixed(1):'–';
+    const el=document.getElementById('cafe-avg-pill');
+    if(el){
+      el.className='cafe-avg-pill';
+      el.innerHTML=`<div class="cafe-avg-num">${avg}</div><div class="cafe-avg-votes">${count} vote${count===1?'':'s'}</div>`;
+    }
+  });
+}
+
+function buildMenu(cafe, items){
+  const body=document.getElementById('menu-body');
+  if(!body)return;
+  let gi=0;
+  body.innerHTML=cafe.menu.map(section=>{
+    const rows=section.items.map(([name,price])=>{
+      const idx=gi++;
+      const priceStr=typeof price==='number'?`Rs. ${price}`:`Rs. ${price}`;
+      return `
+      <div class="menu-row">
+        <div class="menu-row-top">
+          <span class="menu-item-name">${name}</span>
+          <span class="leader"></span>
+          <span class="menu-item-price font-mono">${priceStr}</span>
+        </div>
+        <div class="rating-row">
+          <div class="stars-wrap" data-stars="${idx}">
+            ${[1,2,3,4,5].map(s=>`<button class="star-btn" data-star="${s}" data-idx="${idx}" aria-label="Rate ${s} star">★</button>`).join('')}
+          </div>
+          <div class="avg-text font-mono" data-avg="${idx}">no ratings yet</div>
+        </div>
+      </div>
+      <hr class="menu-divider"/>`;
+    }).join('');
+    return `<div style="margin-bottom:24px">
+      ${section.title?`<div class="menu-section-title">${section.title}</div>`:''}
+      ${rows}
+    </div>`;
+  }).join('');
+
+  body.querySelectorAll('.star-btn').forEach(btn=>{
+    btn.onclick=async()=>{
+      const idx=Number(btn.dataset.idx);
+      const stars=Number(btn.dataset.star);
+      const {data,mv}=await submitRating(cafe.id,idx,stars);
+      paintStars(body,idx,data,mv);
+      const wrap=body.querySelector(`[data-stars="${idx}"]`);
+      if(wrap){wrap.classList.add('stamp');setTimeout(()=>wrap.classList.remove('stamp'),350);}
+    };
+  });
+
+  loadRatings(cafe.id).then(async data=>{
+    const mv=await loadMyVotes(cafe.id);
+    items.forEach((_,idx)=>paintStars(body,idx,data,mv));
+  });
+}
+
+function paintStars(container, idx, data, mv){
+  const k=ik(idx);
+  const myVote=mv[k]||0;
+  const count=data.count[k]||0;
+  const sum=data.sum[k]||0;
+  const avg=count?(sum/count).toFixed(1):null;
+  const wrap=container.querySelector(`[data-stars="${idx}"]`);
+  if(wrap){
+    wrap.querySelectorAll('.star-btn').forEach(b=>{
+      const lit=Number(b.dataset.star)<=myVote;
+      b.classList.toggle('lit',lit);
+    });
+  }
+  const avgEl=container.querySelector(`[data-avg="${idx}"]`);
+  if(avgEl){
+    avgEl.textContent=avg
+      ?`★ ${avg} · ${count} vote${count===1?'':'s'}${myVote?' · you: '+myVote:''}`
+      :(myVote?`you rated ${myVote} ★`:'no ratings yet');
+  }
+}
+
+function buildBottom(cafe){
+  const grid=document.getElementById('bottom-grid');
+  if(!grid)return;
+  grid.innerHTML=`
+    <div class="panel">
+      <div class="panel-title">Pay via</div>
+      ${cafe.payment.length?cafe.payment.map(p=>`
+        <div class="pay-entry">
+          <div class="pay-method">${p.method}</div>
+          ${p.title?`<div class="pay-title">${p.title}</div>`:''}
+          ${p.number?`<div class="pay-number font-mono">${p.number}</div>`:''}
+        </div>
+      `).join(''):`<div class="pay-empty">Cash at the counter — no digital payment listed.</div>`}
+    </div>
+    <div class="panel">
+      <div class="panel-title">Anonymous reviews</div>
+      <div class="comment-form">
+        <input id="comment-input" class="comment-input" type="text" maxlength="220" placeholder="How was it? Posted anonymously."/>
+        <button id="comment-submit" class="comment-submit">Post</button>
+      </div>
+      <div id="comment-list" class="comment-list">
+        <div class="skel" style="height:36px;border-radius:10px"></div>
+        <div class="skel" style="height:36px;border-radius:10px;margin-top:8px"></div>
+      </div>
+    </div>`;
+
+  const input=grid.querySelector('#comment-input');
+  const submit=grid.querySelector('#comment-submit');
+  const list=grid.querySelector('#comment-list');
+
+  function paintComments(items){
+    list.innerHTML=items.length
+      ?items.map((c,i)=>`
+        <div class="comment-item" style="animation-delay:${Math.min(i,5)*35}ms">
+          <div class="comment-meta">Anonymous · ${new Date(c.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+          ${esc(c.text)}
+        </div>`).join('')
+      :`<div class="comment-empty">No reviews yet — be the first to say something.</div>`;
+  }
+
+  loadComments(cafe.id).then(paintComments);
+
+  submit.onclick=async()=>{
+    const text=input.value.trim();
+    if(!text)return;
+    input.disabled=true; submit.disabled=true;
+    const list_=await submitComment(cafe.id,text);
+    input.disabled=false; submit.disabled=false;
+    input.value='';
+    paintComments(list_);
+  };
+  input.onkeydown=e=>{if(e.key==='Enter')submit.click();};
+}
+
+function esc(str){
+  const d=document.createElement('div');
+  d.textContent=str;
+  return d.innerHTML;
+}
+
+/* ── RENDER ── */
+function render(){
+  renderBreadcrumb();
+  if(state.screen==='home')     return renderHome();
+  if(state.screen==='category') return renderCategory();
+  if(state.screen==='cafe')     return renderCafe();
+}
+render();
+</script>
+</body>
+</html>
