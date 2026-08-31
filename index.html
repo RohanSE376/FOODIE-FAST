@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FoodieFast — FAST NUCES Canteen Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="output.css">
+<link rel="icon" type="image/png" href="/faviicon.png">
+</head>
+<body class="min-h-screen">
+
+<div id="nav-wrap" class="sticky top-0 z-30 px-3 pt-3 md:pt-5">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between gap-3 bg-card/85 backdrop-blur-md border border-ink/10 rounded-2xl px-4 md:px-5 py-2.5 shadow-[0_6px_20px_rgba(20,17,16,0.08)]">
+      <button id="brand-btn" class="flex items-center gap-2 group shrink-0">
+        <svg width="26" height="26" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" stroke="#201613" stroke-width="2.4"/>
+          <path d="M15 14v10a3 3 0 003 3v9" stroke="#201613" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M15 14v6M19 14v6M15 20h4" stroke="#201613" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M32 14c-3 2-3 6-1 8l1 1v13" stroke="#B33F2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="font-display italic text-[19px] md:text-[21px] tracking-tight text-ink">FoodieFast</span>
+      </button>
+      <div id="breadcrumb" class="hidden sm:flex items-center gap-2 text-sm text-ink/60 font-medium flex-1 min-w-0"></div>
+      <button id="search-btn" aria-label="Search menu items" class="shrink-0 p-2 rounded-lg hover:bg-ink/5 transition text-ink/70 hover:text-ink">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+      <button id="home-btn" class="shrink-0 text-sm font-semibold text-ink/80 hover:text-ink transition px-3 py-1.5 rounded-lg hover:bg-ink/5">Home</button>
+    </div>
+
+    <div id="search-panel" class="hidden mt-2 bg-card border border-ink/10 rounded-2xl shadow-[0_10px_30px_rgba(20,17,16,0.14)] overflow-hidden">
+      <div class="p-3 border-b border-ink/8">
+        <input id="search-input" type="text" placeholder="Search any dish across every cafeteria… e.g. shawarma"
+          class="w-full bg-papersoft border border-ink/10 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-saffrondark transition" />
+      </div>
+      <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2"></div>
+    </div>
+  </div>
+</div>
+
+<main id="app" class="max-w-5xl mx-auto px-3 md:px-4 pb-10"></main>
+
+<footer class="mt-6 border-t border-ink/10">
+  <div class="max-w-5xl mx-auto px-4 py-8 flex flex-col items-center text-center gap-2">
+    <div class="font-display italic text-lg text-ink/80">FoodieFast</div>
+    <p class="text-xs text-ink/50 max-w-sm">Rate the food, read the room, spend your Rs. 100 where it counts.</p>
+    <div class="mt-3 text-sm text-ink/70">
+      Built by <span class="font-semibold text-ink">Muhammad Rohan Ur Rehman</span> · 25K · FAST NUCES
+    </div>
+    <a href="https://www.linkedin.com/in/muhammadrohan367/" target="_blank" rel="noopener noreferrer"
+       class="inline-flex items-center gap-1.5 text-sm font-medium text-saffrondark hover:text-chili transition mt-0.5">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 11.02-4.12 2.06 2.06 0 01-.02 4.12zM7.11 20.45H3.56V9h3.55v11.45z"/></svg>
+      linkedin.com/in/muhammadrohan367
+    </a>
+  </div>
+</footer>
+
+<script type="module">
+import { inject } from "@vercel/analytics"
+
+inject()
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, updateDoc, getDoc, increment,
+  collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2zzK4j1j-PwHdAb50FTtXdCl5ZGWp4N8",
+  authDomain: "foodiefast-e9772.firebaseapp.com",
+  projectId: "foodiefast-e9772",
+  storageBucket: "foodiefast-e9772.firebasestorage.app",
+  messagingSenderId: "900493642600",
+  appId: "1:900493642600:web:635f56c075013292c0e4dd"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+/* =========================================================
+   DATA
+========================================================= */
+const FOODS = ['Chicken Biryani','Zinger Burger','Aloo Paratha','Seekh Botti','Shawarma','Daal Chawal','Malai Botti','Cold Coffee','Matcha Latte','Masala Fries','Doodh Soda','Halwa Puri','Chicken Karahi','Iced Latte','Samosa','Spring Roll'];
+
+const CATEGORIES = [
+  { id:'lunch',     label:'Lunch',     tagline:'Biryani, burgers, rolls & real meals', icon:'🍛', tilt:-3 },
+  { id:'breakfast', label:'Breakfast', tagline:'Parathas, halwa-puri & morning fuel',  icon:'🍳', tilt:2 },
+  { id:'coffee',    label:'Coffee',    tagline:'Espresso to iced matcha',              icon:'☕', tilt:-2 },
+  { id:'drinks',    label:'Drinks',    tagline:'Juices, shakes & cold relief',          icon:'🥤', tilt:3 },
+];
+
+function sec(items, title=null){ return { title, items }; }
+
+const CAFES = [
+  {
+    id:'burger-corner', name:'Burger Corner', emoji:'🍔', location:'Behind CS Building',
+    categories:['lunch'],
+    payment:[{method:'EasyPaisa', title:'Muhammad Mohsin Khan', number:'0333-3040727'}],
+    menu:[ sec([
+      ['Shami Burger',100],['Egg Shami Burger',150],
+      ['Chicken Patty Burger with Fries (Brand Pack)',200],
+      ['Chicken Chapli Burger with Fries (Brand Pack)',220],
+      ['Zinger Burger with Fries',300],['French Fries',100],
+      ['Chicken Biryani',250],['Chicken Pulao',180],
+    ])]
+  },
+  {
+    id:'dadar-bbq', name:'Badar B.B.Q Dera Point', emoji:'🌯', location:'Behind CS Building',
+    categories:['lunch'],
+    payment:[
+      {method:'EasyPaisa', number:'0332-2274036'},
+      {method:'JazzCash', number:'0315-2265432'},
+      {method:'Askari Bank', number:'03470900000765'},
+    ],
+    menu:[ sec([
+      ['Chicken Tikka Leg',320],['Tikka Seekh Botti (Per Plate)',450],
+      ['Malai Botti Roll',140],['Chicken Mayo Roll',180],
+      ['Chicken Chatni Roll',170],['Chicken Seekh Kebab Roll',180],
+      ['Chicken Shawarma',140],['Zinger Roll',240],['Zinger Shawarma',250],
+      ['Chicken Mayo Sandwich',140],['Special Tea',70],
+    ])]
+  },
+  {
+    id:'shawarma-bite', name:'Shawarma Bite', emoji:'🌯', location:'Beside Back Gate',
+    categories:['lunch'],
+    payment:[{method:'EasyPaisa / SadaPay / JazzCash', title:'Bashir Ahmed', number:'0321-2545983'}],
+    menu:[ sec([
+      ['Chicken Shawarma',170],['Macroni Shawarma',180],['Mayo Garlic Shawarma',200],
+      ['Cheese Shawarma',220],['Vegetable Shawarma',150],['Zinger Shawarma',250],
+      ['Zinger Cheese Shawarma',300],
+    ])]
+  },
+  {
+    id:'tasty-hut', name:'Tasty Hut', emoji:'🍟', location:'Beside EE Building',
+    categories:['lunch'],
+    payment:[{method:'JazzCash', title:'Ubaid Rasheed', number:'0342-2133768'}],
+    menu:[
+      sec([['Masala Fries','50 / 100'],['Loaded Fries',200],['Pizza Fries',320],['Pepro Fries',350],['Mayo Fries',150],['Krusty Fries',300]], 'Fries'),
+      sec([['Shami Burger',100],['Krusty Burger + Fries',250],['Chicken Burger + Fries',180],['Anda Shami Burger',130],['Chapli Burger + Fries',180]], 'Burgers'),
+      sec([['Chicken Chatni Roll',170],['Mayo Roll',180],['Krusty Roll',200],['Chicken Kathi Roll',200],['B.B.Q Roll',140],['Chicken Chatni Roll + Cheese',200],['Chicken Mayo Roll + Cheese',220],['B.B.Q Roll + Cheese',205],['Chicken Kathi Roll + Cheese',230],['Krusty Roll + Cheese',270]], 'Rolls'),
+      sec([['Aloo Samosa',50],['Spring Roll',50],['Arabian Puff',80],['Cheese Spring Roll',100]], 'Snacks'),
+      sec([['B.B.Q ×2 + 345ml Drink',390],['Mayo Roll ×2 + 345ml Drink',400],['Chicken Burger ×2 + 345ml Drink',400],['2 Zinger Burgers',500],['Chicken Biryani',250],['Chicken Pulao',250]], 'Deals'),
+    ]
+  },
+  {
+    id:'fast-juice-bar', name:'Fast Juice Bar', emoji:'🥤', location:'Beside Main Gate',
+    categories:['drinks'],
+    payment:[{method:'EasyPaisa / JazzCash / SadaPay / NayaPay / FirstPay', number:'0325-1386386'}],
+    menu:[ sec([
+      ['Fresh Lemonade',50],['Fresh Lemonade + 7Up',80],['Cold Coffee',180],['Hot Coffee (M)',150],
+      ['Apple Juice',200],['Banana Milkshake',130],['Dates Milkshake',170],['Chiku Milkshake',150],
+      ['Day Dream Milkshake',180],['Oreo Milkshake',180],['Doodh Soda',150],['Peach Drink',80],
+      ['Lychee Drink',80],['Apple Drink',80],['Juice / Rooh Afza (Plain)',80],['Juice / Rooh Afza (Milk)',150],
+      ['Fruit Chaat',150],['Creamy Fruit Chaat',200],
+    ])]
+  },
+  {
+    id:'nashta-spot', name:'Nashta Spot', emoji:'🫓', location:'Beside Back Gate',
+    categories:['breakfast'],
+    payment:[],
+    menu:[
+      sec([['Plain Paratha',60],['Aloo Paratha',120],['Cheese Paratha',180],['Nutella Paratha',180],['Egg Paratha',180]], 'Parathas'),
+      sec([['Egg Omelette',60]], 'Nashta'),
+      sec([['Chicken Biryani / Pulao',250],['Plain Pulao',220]], 'Biryani / Pulao'),
+      sec([['Pakoras (Small Plate)',60],['Pakoras (Large Plate)',100]], 'Pakoras'),
+      sec([['Regular Fries',70],['French Fries',150]], 'Fries'),
+    ]
+  },
+  {
+    id:'grind-coffee', name:'Grind Coffee Co.', emoji:'☕', location:'Main Cafeteria',
+    categories:['coffee'],
+    payment:[],
+    menu:[
+      sec([['Espresso',350],['Americano',380],['Latte',450],['Cappuccino',450]], 'Hot Classic'),
+      sec([['French Vanilla',500],['Caramel',500],['Hazelnut',500],['Spanish',500],['Mocha',500]], 'Hot Lattes'),
+      sec([['Iced Americano',400],['Iced Latte',500],['Iced Spanish Latte',550],['Iced French Vanilla Latte',550],['Iced Caramel Latte',550],['Iced Mocha Latte',550]], 'Iced Coffees'),
+      sec([['French Vanilla Frappe',650],['Caramel Frappe',650],['Hazelnut Frappe',650],['Mocha Frappe',650],['Lotus Frappe',650]], 'Frappes'),
+      sec([['Passion Fruit Iced Tea',400],['Peach Iced Tea',400]], 'Iced Teas'),
+      sec([['Classic Matcha',700],['Blueberry Matcha',750],['Strawberry Matcha',750]], 'Matcha'),
+      sec([['Mint Lemonade',250],['Blueberry Cooler',300],['Strawberry Cooler',300],['Raspberry Cooler',300]], 'Coolers'),
+      sec([['Extra Espresso Shot',150]], 'Add-ons'),
+    ]
+  },
+  {
+    id:'ch-nazeer-ahmed', name:'Cafeteria Ch. Nazeer Ahmed', emoji:'🍛', location:'Main Cafeteria',
+    categories:['breakfast','lunch'],
+    payment:[{method:'EasyPaisa (IBAN)', number:'PK37TMFB0000000083728713'}],
+    menu:[
+      sec([
+        ['Chicken Biryani / Pulao',250],['Plain Biryani / Pulao',125],['Daal Chawal',200],
+        ['Singapuri Rice',350],['Vegetable Rice / Chinnies Rice',250],['Chicken Karahi',200],
+        ['Halwa + 2 Puri + Gravy',120],['Egg Paratha / Bread Slice',150],['Daal Saalan',150],
+        ['Zinger Burger with Fries',300],['Chicken Burger with Fries',200],['Shami Burger',150],
+        ['Double Egg Shami Burger',225],['Chicken Sandwich',200],['Club Sandwich with Fries',350],
+        ['Chicken Samosa',60],['Potato Samosa',40],['Vegetable Roll',60],
+        ['French Fries (Single Plate)',100],['French Fries (Full Plate)',200],
+        ['Uhood Patti Tea',70],['Green Tea',50],['Coffee',150],['Paratha',50],
+      ], 'Self Service Menu'),
+      sec([
+        ['Chicken Roll',200],['Zinger Roll',250],['Chicken Mayo Roll',200],['Potato Paratha',150],
+        ['Chicken Paratha',200],['Chicken Patties',100],['Vegetable Patties',80],
+        ['Dahi Bhalla / Channa Chaat',100],['Pizza Sandwich',250],['Pizza Slice',250],
+        ['Stick Botti',250],['Bottli Sandwich',250],
+      ], 'Market Rate Items'),
+    ]
+  },
+];
+
+const catMeta = id => CATEGORIES.find(c=>c.id===id);
+const cafeById = id => CAFES.find(c=>c.id===id);
+function flatItems(cafe){
+  const out = [];
+  cafe.menu.forEach(section => section.items.forEach(it => out.push(it)));
+  return out;
+}
+function itemKey(idx){ return String(idx); }
+
+/* =========================================================
+   STORAGE HELPERS  (Firebase Firestore — shared across all visitors)
+   Ratings live in a `ratings/{cafeId}` doc, one field per item index,
+   updated with atomic increments so simultaneous votes never overwrite
+   each other. Comments live in a `comments/{cafeId}/items` subcollection,
+   one document per comment. "My vote" (so your own stars stay highlighted
+   and you can re-rate) is kept in this browser's localStorage — it's not
+   shared, just a per-device memory of what you personally picked.
+========================================================= */
+function ratingsRef(cafeId){ return doc(db, 'ratings', cafeId); }
+function commentsCol(cafeId){ return collection(db, 'comments', cafeId, 'items'); }
+
+async function loadRatings(cafeId){
+  try{
+    const snap = await getDoc(ratingsRef(cafeId));
+    if(snap.exists()){
+      const d = snap.data();
+      return { sum: d.sum || {}, count: d.count || {} };
+    }
+  }catch(e){ console.error('loadRatings failed', e); }
+  return { sum:{}, count:{} };
+}
+
+async function loadComments(cafeId){
+  try{
+    const q = query(commentsCol(cafeId), orderBy('ts','desc'), limit(50));
+    const snap = await getDocs(q);
+    return snap.docs.map(d=>{
+      const v = d.data();
+      return { id: d.id, text: v.text, ts: (v.ts && v.ts.toMillis) ? v.ts.toMillis() : Date.now() };
+    });
+  }catch(e){ console.error('loadComments failed', e); return []; }
+}
+
+/* ---------- comment moderation: cooldown + reporting ---------- */
+const COMMENT_COOLDOWN_MS = 30000;
+function commentCooldownRemaining(){
+  try{
+    const last = Number(localStorage.getItem('foodiefast_last_comment_ts') || 0);
+    const remaining = COMMENT_COOLDOWN_MS - (Date.now() - last);
+    return remaining > 0 ? Math.ceil(remaining/1000) : 0;
+  }catch(e){ return 0; }
+}
+function markCommentPosted(){
+  try{ localStorage.setItem('foodiefast_last_comment_ts', String(Date.now())); }catch(e){}
+}
+function loadReportedIds(){
+  try{ return JSON.parse(localStorage.getItem('foodiefast_reported') || '[]'); }catch(e){ return []; }
+}
+function markReported(id){
+  try{
+    const ids = loadReportedIds();
+    if(!ids.includes(id)){ ids.push(id); localStorage.setItem('foodiefast_reported', JSON.stringify(ids)); }
+  }catch(e){ /* ignore */ }
+}
+function reportsCol(){ return collection(db, 'reports'); }
+
+function loadMyVotes(cafeId){
+  try{
+    const raw = localStorage.getItem('foodiefast_myvotes_'+cafeId);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveMyVotes(cafeId, mv){
+  try{ localStorage.setItem('foodiefast_myvotes_'+cafeId, JSON.stringify(mv)); }
+  catch(e){ /* ignore, e.g. private browsing */ }
+}
+
+/* NOTE: ratings and comments now update the UI optimistically and fire the
+   Firestore write in the background (see buildMenuRows / buildPaymentAndComments
+   below) instead of awaiting a full round-trip before painting. */
+
+/* =========================================================
+   STATE + ROUTING
+========================================================= */
+const state = { screen:'home', category:null, cafeId:null };
+const app = document.getElementById('app');
+const breadcrumb = document.getElementById('breadcrumb');
+
+document.getElementById('home-btn').addEventListener('click', ()=>go('home'));
+document.getElementById('brand-btn').addEventListener('click', ()=>go('home'));
+
+function go(screen, opts={}){
+  state.screen = screen;
+  if(opts.category !== undefined) state.category = opts.category;
+  if(opts.cafeId !== undefined) state.cafeId = opts.cafeId;
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* =========================================================
+   SEARCH — across every cafeteria's menu at once
+========================================================= */
+const searchBtn = document.getElementById('search-btn');
+const searchPanel = document.getElementById('search-panel');
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const ratingsCache = {}; // cafeId -> { sum, count } — reused by search + category screens
+
+function openSearch(){
+  searchPanel.classList.remove('hidden');
+  searchInput.focus();
+}
+function closeSearch(){
+  searchPanel.classList.add('hidden');
+  searchInput.value = '';
+  searchResults.innerHTML = '';
+}
+searchBtn.addEventListener('click', ()=>{
+  searchPanel.classList.contains('hidden') ? openSearch() : closeSearch();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') closeSearch();
+});
+document.addEventListener('click', e=>{
+  if(!searchPanel.contains(e.target) && !searchBtn.contains(e.target) && !searchPanel.classList.contains('hidden')){
+    closeSearch();
+  }
+});
+
+let searchDebounce;
+searchInput.addEventListener('input', ()=>{
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(runSearch, 120);
+});
+
+async function runSearch(){
+  const q = searchInput.value.trim().toLowerCase();
+  if(q.length < 2){
+    searchResults.innerHTML = q.length===0
+      ? `<div class="text-sm text-ink/40 text-center py-6">Start typing a dish name…</div>`
+      : '';
+    return;
+  }
+  const matches = [];
+  CAFES.forEach(cafe=>{
+    let idx = 0;
+    cafe.menu.forEach(section=>{
+      section.items.forEach(([name, price])=>{
+        if(name.toLowerCase().includes(q)) matches.push({ cafe, idx, name, price });
+        idx++;
+      });
+    });
+  });
+  const top = matches.slice(0, 30);
+
+  if(!top.length){
+    searchResults.innerHTML = `<div class="text-sm text-ink/40 text-center py-6">No dish matching "${escapeHTML(searchInput.value.trim())}" found.</div>`;
+    return;
+  }
+
+  searchResults.innerHTML = top.map((m,i)=>`
+    <button data-result="${i}" class="w-full text-left flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-papersoft transition">
+      <div class="min-w-0">
+        <div class="text-sm text-ink/90 truncate">${escapeHTML(m.name)}</div>
+        <div class="text-xs text-ink/45 mt-0.5">${m.cafe.emoji} ${escapeHTML(m.cafe.name)}</div>
+      </div>
+      <div class="text-right shrink-0">
+        <div class="font-mono text-xs text-ink/70">Rs. ${m.price}</div>
+        <div class="font-mono text-[10px] text-saffrondark mt-0.5" data-result-rating="${i}">…</div>
+      </div>
+    </button>
+  `).join('');
+
+  searchResults.querySelectorAll('[data-result]').forEach(btn=>{
+    const m = top[Number(btn.dataset.result)];
+    btn.addEventListener('click', ()=>{
+      closeSearch();
+      go('cafe', { cafeId: m.cafe.id, category: m.cafe.categories[0] });
+    });
+  });
+
+  const distinctCafeIds = [...new Set(top.map(m=>m.cafe.id))];
+  await Promise.all(distinctCafeIds.map(async id=>{
+    if(!ratingsCache[id]) ratingsCache[id] = await loadRatings(id);
+  }));
+  top.forEach((m,i)=>{
+    const el = searchResults.querySelector(`[data-result-rating="${i}"]`);
+    if(!el) return;
+    const data = ratingsCache[m.cafe.id];
+    const count = data.count[itemKey(m.idx)] || 0;
+    const sum = data.sum[itemKey(m.idx)] || 0;
+    el.textContent = count ? `★ ${(sum/count).toFixed(1)}` : 'unrated';
+  });
+}
+
+function renderBreadcrumb(){
+  if(state.screen==='home'){ breadcrumb.innerHTML=''; return; }
+  let html = `<button data-nav="home" class="hover:text-ink transition">Home</button>`;
+  if(state.category){
+    const cm = catMeta(state.category);
+    html += `<span class="text-ink/30">/</span><button data-nav="category" class="hover:text-ink transition">${cm.label}</button>`;
+  }
+  if(state.screen==='cafe' && state.cafeId){
+    const cafe = cafeById(state.cafeId);
+    html += `<span class="text-ink/30">/</span><span class="text-ink">${cafe.name}</span>`;
+  }
+  breadcrumb.innerHTML = html;
+  breadcrumb.querySelectorAll('[data-nav]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const target = b.dataset.nav;
+      if(target==='home') go('home');
+      if(target==='category') go('category', {category: state.category});
+    });
+  });
+}
+
+/* =========================================================
+   RENDER: HOME
+========================================================= */
+function renderHome(){
+  const foods = [...FOODS, ...FOODS];
+  const marqueeHtml = foods.map(f=>`<span class="marquee-item">${f}<span class="dot-sep"></span></span>`).join('');
+
+  app.innerHTML = `
+  <section class="screen-enter">
+    <div class="pt-10 md:pt-16 pb-10 text-center">
+      <div class="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-card px-3.5 py-1.5 text-xs font-semibold tracking-wide text-ink/70 mb-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-chili"></span> FAST&nbsp;NUCES CAMPUS CANTEENS
+      </div>
+      <h1 class="font-display text-[13vw] leading-[0.9] sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-ink">
+        Don't waste<br/><span class="italic text-saffrondark">Rs. 100</span> on bad food.
+      </h1>
+      <div class="marquee-wrap"><div class="marquee-track">${marqueeHtml}</div></div>
+      <p class="mt-6 max-w-xl mx-auto text-sm md:text-base text-ink/65 leading-relaxed">
+        Every cafeteria on campus, every item priced and rated by the people actually eating it.
+        Pick what you're craving — the menu, the stars, and the honest anonymous reviews follow.
+      </p>
+    </div>
+
+    <div class="mb-3 flex items-center gap-3 justify-center">
+      <div class="h-px w-10 bg-ink/20"></div>
+      <span class="font-display italic text-lg text-ink/70">What are you craving?</span>
+      <div class="h-px w-10 bg-ink/20"></div>
+    </div>
+
+    <div id="cat-grid" class="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6 mt-8 mb-6 px-1">
+      ${CATEGORIES.map((c,i)=>`
+        <button data-cat="${c.id}" style="--tilt:${c.tilt}deg; animation-delay:${i*90}ms"
+          class="ticket deal-in text-left bg-card border border-ink/12 rounded-2xl shadow-[0_10px_24px_rgba(20,17,16,0.10)] overflow-hidden group">
+          <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+            <span class="text-3xl md:text-4xl">${c.icon}</span>
+            <span class="font-mono text-[10px] text-ink/40">NO.${String(i+1).padStart(2,'0')}</span>
+          </div>
+          <div class="perf" style="--stub-bg:#FFFDF9"></div>
+          <div class="px-4 pt-3 pb-4">
+            <div class="font-display text-xl md:text-2xl text-ink">${c.label}</div>
+            <div class="text-[11px] md:text-xs text-ink/55 mt-1 leading-snug">${c.tagline}</div>
+            <div class="mt-3 text-xs font-semibold text-saffrondark group-hover:text-chili transition inline-flex items-center gap-1">
+              Browse stalls <span aria-hidden="true" class="transition group-hover:translate-x-0.5">→</span>
+            </div>
+          </div>
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="mt-14 grid sm:grid-cols-3 gap-4">
+      ${[
+        ['8', 'canteens tracked'],
+        ['150+', 'menu items priced'],
+        ['★', 'rated & reviewed by students'],
+      ].map(([n,l])=>`
+        <div class="bg-card border border-ink/10 rounded-xl px-5 py-4 text-center">
+          <div class="font-display text-2xl text-chili">${n}</div>
+          <div class="text-[11px] text-ink/55 mt-1">${l}</div>
+        </div>
+      `).join('')}
+    </div>
+  </section>`;
+
+  app.querySelectorAll('[data-cat]').forEach(btn=>{
+    btn.addEventListener('click', ()=> go('category', {category: btn.dataset.cat, cafeId:null}));
+  });
+}
+
+/* =========================================================
+   RENDER: CATEGORY (list of cafeterias)
+========================================================= */
+function cheapestPrice(cafe){
+  let min = Infinity;
+  flatItems(cafe).forEach(([,price])=>{
+    const n = typeof price === 'number' ? price : parseFloat(String(price).match(/\d+(\.\d+)?/)?.[0]);
+    if(!isNaN(n) && n < min) min = n;
+  });
+  return isFinite(min) ? min : null;
+}
+
+let categorySort = 'default';
+const cafeAverages = {}; // cafeId -> avg number, or null once known-unrated
+
+function renderCategory(){
+  const cm = catMeta(state.category);
+  const cafes = CAFES.filter(c=>c.categories.includes(state.category));
+  categorySort = 'default';
+
+  app.innerHTML = `
+  <section class="screen-enter pt-8">
+    <div class="flex items-center gap-3 mb-1">
+      <span class="text-4xl">${cm.icon}</span>
+      <div>
+        <h2 class="font-display text-3xl md:text-4xl text-ink">${cm.label} stalls</h2>
+        <p class="text-sm text-ink/55">${cafes.length} cafeteria${cafes.length>1?'s':''} serving ${cm.label.toLowerCase()} right now</p>
+      </div>
+    </div>
+
+    <div id="sort-toggle" class="flex items-center gap-1 mt-6 mb-2 bg-papersoft rounded-full p-1 w-fit">
+      ${[['default','Default'],['rating','Top rated'],['price','Cheapest first']].map(([key,label])=>`
+        <button data-sort="${key}" class="sort-btn px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${key==='default' ? 'bg-card text-ink shadow-sm' : 'text-ink/50 hover:text-ink'}">${label}</button>
+      `).join('')}
+    </div>
+
+    <div id="cafe-grid" class="grid sm:grid-cols-2 gap-5 mt-6"></div>
+  </section>`;
+
+  function orderedCafes(){
+    const list = [...cafes];
+    if(categorySort === 'price'){
+      list.sort((a,b)=>{
+        const pa = cheapestPrice(a), pb = cheapestPrice(b);
+        if(pa===null) return 1; if(pb===null) return -1;
+        return pa - pb;
+      });
+    } else if(categorySort === 'rating'){
+      list.sort((a,b)=>{
+        const ra = cafeAverages[a.id], rb = cafeAverages[b.id];
+        if(ra==null && rb==null) return 0;
+        if(ra==null) return 1; if(rb==null) return -1;
+        return rb - ra;
+      });
+    }
+    return list;
+  }
+
+  function renderGrid(){
+    const grid = document.getElementById('cafe-grid');
+    const list = orderedCafes();
+    grid.innerHTML = list.map((cafe,i)=>{
+      const cheapest = cheapestPrice(cafe);
+      return `
+      <button data-cafe="${cafe.id}" style="animation-delay:${i*80}ms"
+        class="rise text-left bg-card border border-ink/12 rounded-2xl p-5 shadow-[0_8px_20px_rgba(20,17,16,0.08)] hover:shadow-[0_12px_28px_rgba(20,17,16,0.14)] hover:-translate-y-0.5 transition">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">${cafe.emoji}</span>
+            <div>
+              <div class="font-display text-xl text-ink leading-tight">${cafe.name}</div>
+              <div class="text-xs text-ink/50 mt-0.5">📍 ${cafe.location}</div>
+            </div>
+          </div>
+          <span id="avg-badge-${cafe.id}" class="shrink-0 rounded-full px-2.5 py-1 text-xs font-mono font-semibold ${cafeAverages[cafe.id] ? 'bg-saffron/25 text-saffrondark' : 'bg-ink/5 text-ink/35'}">${cafeAverages[cafe.id] ? '★ '+cafeAverages[cafe.id].toFixed(1) : (cafe.id in cafeAverages ? 'unrated' : '···')}</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between">
+          <span class="text-xs font-semibold text-saffrondark inline-flex items-center gap-1">
+            View full menu <span aria-hidden="true">→</span>
+          </span>
+          ${cheapest!==null ? `<span class="font-mono text-[11px] text-ink/45">from Rs. ${cheapest}</span>` : ''}
+        </div>
+      </button>
+    `;}).join('');
+
+    grid.querySelectorAll('[data-cafe]').forEach(btn=>{
+      btn.addEventListener('click', ()=> go('cafe', {cafeId: btn.dataset.cafe}));
+    });
+  }
+
+  renderGrid();
+
+  document.querySelectorAll('#sort-toggle [data-sort]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      categorySort = btn.dataset.sort;
+      document.querySelectorAll('#sort-toggle [data-sort]').forEach(b=>{
+        b.classList.toggle('bg-card', b===btn);
+        b.classList.toggle('text-ink', b===btn);
+        b.classList.toggle('shadow-sm', b===btn);
+        b.classList.toggle('text-ink/50', b!==btn);
+      });
+      renderGrid();
+    });
+  });
+
+  Promise.all(cafes.map(async cafe=>{
+    if(!ratingsCache[cafe.id]) ratingsCache[cafe.id] = await loadRatings(cafe.id);
+    const data = ratingsCache[cafe.id];
+    const items = flatItems(cafe);
+    let sum=0, count=0;
+    items.forEach((_,idx)=>{ sum += data.sum[itemKey(idx)]||0; count += data.count[itemKey(idx)]||0; });
+    cafeAverages[cafe.id] = count ? sum/count : null;
+  })).then(()=>{ renderGrid(); });
+}
+
+/* =========================================================
+   RENDER: CAFE DETAIL
+========================================================= */
+function renderCafe(){
+  const cafe = cafeById(state.cafeId);
+  const items = flatItems(cafe);
+
+  app.innerHTML = `
+  <section class="screen-enter pt-8">
+    <div class="torn-bottom bg-ink text-paper rounded-t-2xl px-5 md:px-8 pt-7">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-[11px] font-mono tracking-widest text-saffron/90 mb-1">ORDER TICKET</div>
+          <h2 class="font-display text-3xl md:text-5xl leading-[0.95]">${cafe.emoji} ${cafe.name}</h2>
+          <div class="text-sm text-paper/65 mt-2">📍 ${cafe.location}</div>
+        </div>
+        <div id="cafe-avg" class="skel rounded-xl w-20 h-14 shrink-0"></div>
+      </div>
+    </div>
+
+    <div id="menu-container" class="bg-card border-x border-b border-ink/12 rounded-b-2xl px-5 md:px-8 pt-6 pb-8 -mt-px"></div>
+  </section>`;
+
+  buildMenuRows(cafe, items);
+  buildPaymentAndComments(cafe);
+
+  loadRatings(cafe.id).then(data=>{
+    let sum=0,count=0;
+    items.forEach((_,idx)=>{ sum += data.sum[itemKey(idx)]||0; count += data.count[itemKey(idx)]||0; });
+    const avg = count ? (sum/count).toFixed(1) : '–';
+    const el = document.getElementById('cafe-avg');
+    if(el){
+      el.className = 'shrink-0 rounded-xl bg-saffron/20 px-3 py-2 text-center';
+      el.innerHTML = `<div class="font-display text-2xl text-saffron leading-none">${avg}</div><div class="text-[9px] font-mono text-paper/60 mt-0.5">${count} vote${count===1?'':'s'}</div>`;
+    }
+  });
+}
+
+function buildMenuRows(cafe, items){
+  const container = document.getElementById('menu-container');
+  if(!container) return;
+  let globalIdx = 0;
+  container.innerHTML = cafe.menu.map(section => {
+    const rows = section.items.map(([name, price])=>{
+      const idx = globalIdx++;
+      const priceLabel = typeof price === 'number' ? `Rs. ${price}` : `Rs. ${price}`;
+      return `
+      <div class="py-3 flex items-center gap-2" data-row="${idx}">
+        <div class="text-sm md:text-[15px] text-ink/90">${name}</div>
+        <div class="leader"></div>
+        <div class="font-mono text-sm text-ink/70 shrink-0">${priceLabel}</div>
+      </div>
+      <div class="pb-3 -mt-2 flex items-center justify-between flex-wrap gap-y-1" data-rating-row="${idx}">
+        <div class="flex items-center gap-0.5" data-stars="${idx}">
+          ${[1,2,3,4,5].map(s=>`
+            <button data-star="${s}" data-idx="${idx}" aria-label="Rate ${s} star"
+              class="star-btn text-lg leading-none text-ink/20">★</button>
+          `).join('')}
+        </div>
+        <div class="font-mono text-[11px] text-ink/45" data-avg="${idx}">no ratings yet</div>
+      </div>`;
+    }).join('<div class="border-t border-ink/8"></div>');
+    return `<div class="mb-7">
+      ${section.title ? `<div class="font-display italic text-lg text-chili mb-2">${section.title}</div>` : ''}
+      <div>${rows}</div>
+    </div>`;
+  }).join('');
+
+  // Ratings live in the shared cache (same one the category list and search
+  // use) so a vote here is instantly reflected if the user navigates back.
+  if(!ratingsCache[cafe.id]) ratingsCache[cafe.id] = { sum:{}, count:{} };
+  let ratingsData = ratingsCache[cafe.id];
+  let myVotes = loadMyVotes(cafe.id);
+
+  container.querySelectorAll('[data-star]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = Number(btn.dataset.idx);
+      const stars = Number(btn.dataset.star);
+      const k = itemKey(idx);
+      const prev = myVotes[k];
+      const delta = prev ? (stars - prev) : stars;
+
+      // 1. Update on screen immediately — no waiting on the network.
+      ratingsData.sum[k] = (ratingsData.sum[k]||0) + delta;
+      if(!prev) ratingsData.count[k] = (ratingsData.count[k]||0) + 1;
+      myVotes[k] = stars;
+      saveMyVotes(cafe.id, myVotes);
+      paintStars(container, idx, ratingsData, myVotes);
+      const row = container.querySelector(`[data-stars="${idx}"]`);
+      row.classList.add('stamp-pop');
+      setTimeout(()=>row.classList.remove('stamp-pop'), 400);
+
+      // 2. Persist to Firestore in the background — nothing here blocks the UI.
+      const ref = ratingsRef(cafe.id);
+      const update = { [`sum.${k}`]: increment(delta) };
+      if(!prev) update[`count.${k}`] = increment(1);
+      setDoc(ref, {}, { merge:true })
+        .then(()=> updateDoc(ref, update))
+        .catch(e=> console.error('submitRating failed', e));
+    });
+  });
+
+  loadRatings(cafe.id).then(data=>{
+    ratingsCache[cafe.id] = data;
+    ratingsData = data;
+    myVotes = loadMyVotes(cafe.id);
+    items.forEach((_,idx)=> paintStars(container, idx, ratingsData, myVotes));
+  });
+}
+
+function paintStars(container, idx, data, mv){
+  const k = String(idx);
+  const myVote = mv[k] || 0;
+  const count = data.count[k] || 0;
+  const sum = data.sum[k] || 0;
+  const avg = count ? (sum/count).toFixed(1) : null;
+  const wrap = container.querySelector(`[data-stars="${idx}"]`);
+  if(wrap){
+    wrap.querySelectorAll('[data-star]').forEach(b=>{
+      const filled = Number(b.dataset.star) <= myVote;
+      b.classList.toggle('text-saffrondark', filled);
+      b.classList.toggle('text-ink/20', !filled);
+    });
+  }
+  const avgEl = container.querySelector(`[data-avg="${idx}"]`);
+  if(avgEl){
+    avgEl.textContent = avg ? `★ ${avg} avg · ${count} vote${count===1?'':'s'}${myVote?' · you rated '+myVote:''}` : (myVote ? `you rated ${myVote} ★` : 'no ratings yet');
+  }
+}
+
+function buildPaymentAndComments(cafe){
+  const wrap = document.createElement('div');
+  wrap.className = 'mt-6 grid md:grid-cols-2 gap-5';
+  wrap.innerHTML = `
+    <div class="bg-papersoft border border-ink/10 rounded-2xl p-5">
+      <div class="font-display italic text-lg text-ink mb-3">Pay via</div>
+      ${cafe.payment.length ? cafe.payment.map(p=>`
+        <div class="text-sm mb-2.5 pb-2.5 border-b border-ink/8 last:border-0 last:mb-0 last:pb-0">
+          <div class="font-semibold text-ink/85">${p.method}</div>
+          ${p.title ? `<div class="text-ink/55 text-xs">${p.title}</div>` : ''}
+          ${p.number ? `<div class="font-mono text-xs text-ink/70 mt-0.5">${p.number}</div>` : ''}
+        </div>
+      `).join('') : `<div class="text-sm text-ink/50">Cash on the counter — no digital payment listed for this stall.</div>`}
+    </div>
+
+    <div class="bg-papersoft border border-ink/10 rounded-2xl p-5 corkline">
+      <div class="font-display italic text-lg text-ink mb-3">Anonymous reviews</div>
+      <form id="comment-form" class="flex gap-2 mb-1">
+        <input id="comment-input" type="text" maxlength="220" placeholder="How was it? (posted anonymously)"
+          class="flex-1 bg-card border border-ink/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-saffrondark transition" />
+        <button type="submit" class="bg-ink text-paper text-sm font-semibold px-4 rounded-lg hover:bg-chili transition">Post</button>
+      </form>
+      <div id="comment-warning" class="hidden text-xs text-chili font-medium mb-3"></div>
+      <div id="comment-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1 mt-3">
+        <div class="skel h-10 rounded-lg"></div>
+        <div class="skel h-10 rounded-lg"></div>
+      </div>
+    </div>
+  `;
+  app.querySelector('section').appendChild(wrap);
+
+  const form = wrap.querySelector('#comment-form');
+  const input = wrap.querySelector('#comment-input');
+  const list = wrap.querySelector('#comment-list');
+  const warning = wrap.querySelector('#comment-warning');
+  const reportedIds = loadReportedIds();
+
+  function showWarning(msg){
+    warning.textContent = msg;
+    warning.classList.remove('hidden');
+    clearTimeout(showWarning._t);
+    showWarning._t = setTimeout(()=> warning.classList.add('hidden'), 2600);
+  }
+
+  function paintComments(items){
+    list.innerHTML = items.length ? items.map((c,i)=>`
+      <div class="rise bg-card border border-ink/10 rounded-lg px-3 py-2.5 text-sm text-ink/80 shadow-sm flex items-start justify-between gap-2" style="animation-delay:${Math.min(i,6)*40}ms">
+        <div class="min-w-0">
+          <span class="font-mono text-[10px] text-ink/35 block mb-0.5">Anonymous · ${new Date(c.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+          ${escapeHTML(c.text)}
+        </div>
+        ${c.id ? `
+          <button data-report="${c.id}"
+            class="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-md transition ${reportedIds.includes(c.id) ? 'text-ink/30 cursor-default' : 'text-ink/40 hover:text-chili hover:bg-chili/10'}"
+            ${reportedIds.includes(c.id) ? 'disabled' : ''}>${reportedIds.includes(c.id) ? 'Reported' : 'Report'}</button>
+        ` : ''}
+      </div>
+    `).join('') : `<div class="text-sm text-ink/45 italic">No reviews yet — be the first to say something.</div>`;
+
+    list.querySelectorAll('[data-report]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.dataset.report;
+        const target = commentsList.find(c=>c.id===id);
+        markReported(id);
+        reportedIds.push(id);
+        btn.textContent = 'Reported';
+        btn.disabled = true;
+        btn.className = 'shrink-0 text-[10px] font-semibold px-2 py-1 rounded-md text-ink/30 cursor-default';
+        addDoc(reportsCol(), { cafeId: cafe.id, commentId: id, text: target ? target.text : '', ts: serverTimestamp() })
+          .catch(e=> console.error('report failed', e));
+      });
+    });
+  }
+
+  let commentsList = [];
+  loadComments(cafe.id).then(items=>{ commentsList = items; paintComments(commentsList); });
+
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    const text = input.value.trim();
+    if(!text) return;
+
+    const wait = commentCooldownRemaining();
+    if(wait > 0){
+      showWarning(`Please wait ${wait}s before posting another comment.`);
+      return;
+    }
+
+    input.value = '';
+    markCommentPosted();
+
+    // 1. Show it immediately — instant feedback, no waiting on the network.
+    commentsList = [{ text, ts: Date.now() }, ...commentsList];
+    paintComments(commentsList);
+
+    // 2. Persist to Firestore in the background.
+    addDoc(commentsCol(cafe.id), { text, ts: serverTimestamp() })
+      .catch(e=> console.error('submitComment failed', e));
+  });
+}
+
+function escapeHTML(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* =========================================================
+   MAIN RENDER SWITCH
+========================================================= */
+function render(){
+  renderBreadcrumb();
+  if(state.screen==='home') return renderHome();
+  if(state.screen==='category') return renderCategory();
+  if(state.screen==='cafe') return renderCafe();
+}
+
+render();
+</script>
+</body>
+</html>
